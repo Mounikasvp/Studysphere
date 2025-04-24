@@ -1,0 +1,58 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "user-rooms": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "rooms": {
+      ".read": "auth !== null",
+      ".indexOn": ["roomCode"],
+      "$room_id": {
+        ".read": "auth !== null && (!data.child('isPrivate').exists() || data.child('isPrivate').val() == false || data.child('members').child(auth.uid).exists())",
+        ".write": "!data.exists() || data.child('admins').child(auth.uid).val() == true",
+        "lastMessage": {
+          ".write": "auth !== null"
+        },
+        "members": {
+          "$uid": {
+            ".write": "$uid === auth.uid"
+          }
+        }
+      }
+    },
+    "messages": {
+      ".read": "auth !== null",
+      ".write": "auth !== null",
+      ".indexOn": ["roomId", "author/uid"],
+      "$message_id": {
+        ".read": "auth !== null",
+        ".write": "auth !== null"
+      }
+    },
+    "invitations": {
+      ".read": "auth !== null",
+      ".write": "auth !== null",
+      ".indexOn": ["senderId", "recipientId", "groupId"],
+      "$invitation_id": {
+        ".read": "auth !== null && (data.child('senderId').val() === auth.uid || data.child('recipientId').val() === auth.uid)",
+        ".write": "auth !== null && (data.child('senderId').val() === auth.uid || data.child('recipientId').val() === auth.uid || !data.exists())"
+      }
+    },
+    "status": {
+      "$user_id": {
+        ".read": "auth !== null",
+        ".write": "$user_id === auth.uid"
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}
